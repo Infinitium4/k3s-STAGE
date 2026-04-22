@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+CHART_PATH="/STAGE1/k3s-stage/kafka-stack"
+
 echo "========================================"
 echo " Kafka Stack - Setup automatique"
 echo "========================================"
@@ -27,12 +29,12 @@ helm repo update
 # ── 4. Dépendances du chart ───────────────────────────────────
 echo ""
 echo "[4/6] Téléchargement des dépendances Helm..."
-helm dependency update ./kafka-stack
+helm dependency update "$CHART_PATH"
 
 # ── 5. Installation du chart ──────────────────────────────────
 echo ""
 echo "[5/6] Installation du chart kafka-stack..."
-helm install kafka-stack ./kafka-stack \
+helm install kafka-stack "$CHART_PATH" \
   --namespace kafka \
   --create-namespace \
   --wait \
