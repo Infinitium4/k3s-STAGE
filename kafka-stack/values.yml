@@ -1,0 +1,39 @@
+# ── Kafka ────────────────────────────────────────────────────
+kafka:
+  version: "4.1.0"
+  metadataVersion: "4.1-IV0"
+  replicas: 3
+  storage:
+    size: 5Gi
+    deleteClaim: false
+  config:
+    offsetsTopicReplicationFactor: 3
+    transactionStateLogReplicationFactor: 3
+    transactionStateLogMinIsr: 2
+    defaultReplicationFactor: 3
+    minInsyncReplicas: 2
+
+# ── Topic ─────────────────────────────────────────────────────
+topic:
+  name: mon-topic
+  partitions: 3
+  replicas: 3
+  retentionMs: 604800000
+  minInsyncReplicas: "2"
+
+# ── Strimzi (sous-chart) ──────────────────────────────────────
+strimzi-kafka-operator:
+  leaderElection:
+    enabled: false
+
+# ── Prometheus + Grafana (sous-chart) ────────────────────────
+kube-prometheus-stack:
+  grafana:
+    adminPassword: admin
+    service:
+      type: NodePort
+      nodePort: 32000
+  prometheus:
+    prometheusSpec:
+      podMonitorSelectorNilUsesHelmValues: false
+      serviceMonitorSelectorNilUsesHelmValues: false
