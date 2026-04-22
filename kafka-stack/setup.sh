@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-CHART_PATH="/STAGE1/k3s-stage/kafka-stack"
+CHART_PATH="/home/vboxuser/STAGE1/k3s-STAGE/kafka-stack"
 
 echo "========================================"
 echo " Kafka Stack - Setup automatique"
