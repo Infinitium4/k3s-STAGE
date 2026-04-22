@@ -1,0 +1,14 @@
+apiVersion : v2
+name : kafka-stack-helm-deployment
+description : Kafka cluster with Strimzi, Prometheus and Grafana
+type : application
+version : 1.0.0
+
+dependencies :
+  - name : strimzi-kafka-operator
+    version : "0.51.0"
+    repository : https://strimzi.io/charts/
+    
+  - name : prometheus-community
+    version : "70.4.2"  
+    repository : https://prometheus-community.github.io/helm-charts
