@@ -37,3 +37,22 @@ kube-prometheus-stack:
     prometheusSpec:
       podMonitorSelectorNilUsesHelmValues: false
       serviceMonitorSelectorNilUsesHelmValues: false
+
+
+
+kube-prometheus-stack:
+  grafana:
+    adminPassword: admin
+    service:
+      type: NodePort
+      nodePort: 32000
+    additionalDataSources:
+      - name: Prometheus-Kafka
+        type: prometheus
+        url: http://kafka-stack-kube-prometheu-prometheus.kafka:9090
+        access: proxy
+        isDefault: true
+  prometheus:
+    prometheusSpec:
+      podMonitorSelectorNilUsesHelmValues: false
+      serviceMonitorSelectorNilUsesHelmValues: false
