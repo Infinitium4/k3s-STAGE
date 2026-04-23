@@ -1,9 +1,0 @@
-dependencies:
-- name: strimzi-kafka-operator
-  repository: https://strimzi.io/charts/
-  version: 0.51.0
-- name: kube-prometheus-stack
-  repository: https://prometheus-community.github.io/helm-charts
-  version: 70.4.2
-digest: sha256:40091b6b0576ff1693252f36c9e53a9c8eb85f093e99bc15cf193847d5234ea2
-generated: "2026-04-22T17:51:41.251097865Z"
