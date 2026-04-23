@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: kafka-pod-monitor
+  namespace: kafka
+  labels:
+    release: kafka-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - kafka
+  selector:
+    matchLabels:
+      strimzi.io/kind: Kafka
+  podMetricsEndpoints:
+    - path: /metrics
+      port: tcp-prometheus
