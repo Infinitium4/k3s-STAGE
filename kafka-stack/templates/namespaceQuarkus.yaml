@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: quarkus
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quarkus-kafka-producer-config
+  namespace: quarkus
+data:
+  KAFKA_BOOTSTRAP_SERVERS: "10.96.1.43:9092"
+  KAFKA_TOPIC: "mon-topic"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quarkus-kafka-producer
+  namespace: quarkus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quarkus-kafka-producer
+  template:
+    metadata:
+      labels:
+        app: quarkus-kafka-producer
+    spec:
+      containers:
+        - name: quarkus-kafka-producer
+          image: localhost/quarkus-kafka-producer:1.0.1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: quarkus-kafka-producer-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: KAFKA_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: quarkus-kafka-producer-config
+                  key: KAFKA_TOPIC
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quarkus-kafka-producer
+  namespace: quarkus
+spec:
+  selector:
+    app: quarkus-kafka-producer
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quarkus-kafka-producer
+  namespace: quarkus
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: quarkus-kafka-producer
+                port:
+                  number: 8080

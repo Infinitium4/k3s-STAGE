@@ -51,7 +51,7 @@ kube-prometheus-stack:
         type: prometheus
         url: http://kafka-stack-kube-prometheu-prometheus.kafka:9090
         access: proxy
-        isDefault: true
+        isDefault: false
   prometheus:
     prometheusSpec:
       podMonitorSelectorNilUsesHelmValues: false
