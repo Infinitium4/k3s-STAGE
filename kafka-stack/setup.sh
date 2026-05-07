@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
-
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"          
+KIND_CONFIG="$SCRIPT_DIR/config/kind-config.yaml"    
 CHART_PATH="/home/vboxuser/STAGE1/k3s-STAGE/kafka-stack"
 
 echo "========================================"
@@ -10,7 +11,7 @@ echo "========================================"
 # ── 1. Cluster Kind ──────────────────────────────────────────
 echo ""
 echo "[1/6] Création du cluster Kind..."
-kind create cluster --name stage
+kind create cluster --name stage --config "$KIND_CONFIG"
 kubectl get nodes
 
 # ── 2. Namespaces ─────────────────────────────────────────────
