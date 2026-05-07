@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"          
-KIND_CONFIG="$SCRIPT_DIR/config/kind-config.yaml"    
+KIND_CONFIG="$SCRIPT_DIR/../config/kind-config.yaml"
 CHART_PATH="/home/vboxuser/STAGE1/k3s-STAGE/kafka-stack"
 
 echo "========================================"
