@@ -3,7 +3,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 DEV_DIR="/home/vboxuser/quarkus-kafka-producer"
-MANIFEST="$SCRIPT_DIR/kafka-stack/templates/namespaceQuarkus.yaml"
+MANIFEST="$SCRIPT_DIR/templates/namespaceQuarkus.yaml"
 IMAGE_NAME="localhost/quarkus-kafka-producer"
 IMAGE_TAG="1.0.1"
 IMAGE_FULL="$IMAGE_NAME:$IMAGE_TAG"
