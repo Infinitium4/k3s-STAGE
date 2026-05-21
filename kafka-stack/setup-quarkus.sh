@@ -2,8 +2,8 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-# ✅ FIX 1 : chemin dynamique, plus de /home/vboxuser hardcodé
-DEV_DIR="$(cd "$SCRIPT_DIR/../../quarkus-kafka-producer" && pwd)"
+# ✅ FIX : chemin dynamique basé sur le home de l'user courant
+DEV_DIR="$HOME/quarkus-kafka-producer"
 MANIFEST="$SCRIPT_DIR/templates/namespaceQuarkus.yaml"
 IMAGE_NAME="localhost/quarkus-kafka-producer"
 IMAGE_TAG="1.0.1"
@@ -14,10 +14,10 @@ echo "========================================"
 echo " Quarkus - Build & Deploy"
 echo "========================================"
 
-# ✅ FIX 2 : vérifier que le dossier quarkus existe avant d'aller plus loin
+# ✅ FIX : vérifier que le dossier existe
 if [ ! -d "$DEV_DIR" ]; then
-  echo "ERREUR : dossier quarkus-kafka-producer introuvable : $DEV_DIR"
-  echo "Assure-toi d'avoir cloné le repo quarkus au même niveau que k3s-STAGE."
+  echo "ERREUR : dossier introuvable : $DEV_DIR"
+  echo "Lance : git clone https://github.com/Infinitium4/k3s-STAGE-DEV.git ~/quarkus-kafka-producer"
   exit 1
 fi
 
@@ -55,7 +55,7 @@ kind load image-archive "$TAR_FILE" --name stage
 rm -f "$TAR_FILE"
 
 echo "   Vérification de l'image dans Kind :"
-# ✅ FIX 3 : pas de -it en non-interactif (plantait dans les scripts)
+# ✅ FIX : suppression du -it (incompatible en mode script)
 docker exec stage-control-plane crictl images | grep quarkus
 
 # ── 5. Déploiement manifest ──────────────────────────────────
@@ -64,9 +64,9 @@ echo "[5/6] Déploiement du namespace Quarkus..."
 echo "   Détection de l'IP Kafka..."
 KAFKA_IP=$(kubectl get svc my-cluster-kafka-bootstrap -n kafka -o jsonpath='{.spec.clusterIP}')
 
-# ✅ FIX 4 : vérifier que l'IP a bien été récupérée
+# ✅ FIX : vérifier que l'IP est bien récupérée
 if [ -z "$KAFKA_IP" ]; then
-  echo "ERREUR : impossible de détecter l'IP Kafka. Le service est-il démarré ?"
+  echo "ERREUR : impossible de détecter l'IP Kafka. Le cluster Kafka est-il démarré ?"
   exit 1
 fi
 echo "   IP Kafka détectée : $KAFKA_IP"
