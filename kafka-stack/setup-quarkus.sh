@@ -3,7 +3,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # ✅ FIX : chemin dynamique basé sur le home de l'user courant
-DEV_DIR="$HOME/quarkus-kafka-producer"
+DEV_DIR="$HOME/k3s-STAGE-DEV"
 MANIFEST="$SCRIPT_DIR/templates/namespaceQuarkus.yaml"
 IMAGE_NAME="localhost/quarkus-kafka-producer"
 IMAGE_TAG="1.0.1"
