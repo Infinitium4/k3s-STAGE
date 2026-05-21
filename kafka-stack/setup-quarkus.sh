@@ -2,7 +2,8 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-DEV_DIR="/home/vboxuser/quarkus-kafka-producer"
+# ✅ FIX 1 : chemin dynamique, plus de /home/vboxuser hardcodé
+DEV_DIR="$(cd "$SCRIPT_DIR/../../quarkus-kafka-producer" && pwd)"
 MANIFEST="$SCRIPT_DIR/templates/namespaceQuarkus.yaml"
 IMAGE_NAME="localhost/quarkus-kafka-producer"
 IMAGE_TAG="1.0.1"
@@ -13,11 +14,17 @@ echo "========================================"
 echo " Quarkus - Build & Deploy"
 echo "========================================"
 
+# ✅ FIX 2 : vérifier que le dossier quarkus existe avant d'aller plus loin
+if [ ! -d "$DEV_DIR" ]; then
+  echo "ERREUR : dossier quarkus-kafka-producer introuvable : $DEV_DIR"
+  echo "Assure-toi d'avoir cloné le repo quarkus au même niveau que k3s-STAGE."
+  exit 1
+fi
+
 # ── 1. Nginx Ingress Controller ──────────────────────────────
 echo ""
 echo "[1/6] Installation de nginx ingress controller..."
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-
 echo "   Attente du démarrage de nginx ingress..."
 kubectl wait --namespace ingress-nginx \
   --for=condition=ready pod \
@@ -48,28 +55,30 @@ kind load image-archive "$TAR_FILE" --name stage
 rm -f "$TAR_FILE"
 
 echo "   Vérification de l'image dans Kind :"
-docker exec -it stage-control-plane crictl images | grep quarkus
+# ✅ FIX 3 : pas de -it en non-interactif (plantait dans les scripts)
+docker exec stage-control-plane crictl images | grep quarkus
 
 # ── 5. Déploiement manifest ──────────────────────────────────
 echo ""
 echo "[5/6] Déploiement du namespace Quarkus..."
-
-# Détecter l'IP du service Kafka bootstrap
 echo "   Détection de l'IP Kafka..."
 KAFKA_IP=$(kubectl get svc my-cluster-kafka-bootstrap -n kafka -o jsonpath='{.spec.clusterIP}')
+
+# ✅ FIX 4 : vérifier que l'IP a bien été récupérée
+if [ -z "$KAFKA_IP" ]; then
+  echo "ERREUR : impossible de détecter l'IP Kafka. Le service est-il démarré ?"
+  exit 1
+fi
 echo "   IP Kafka détectée : $KAFKA_IP"
 
-# Injecter l'IP dans une copie temporaire du manifest
 TMP_MANIFEST="/tmp/namespaceQuarkus.yaml"
 sed "s/KAFKA_IP_PLACEHOLDER/$KAFKA_IP:9092/" "$MANIFEST" > "$TMP_MANIFEST"
-
 kubectl apply -f "$TMP_MANIFEST"
 rm -f "$TMP_MANIFEST"
 
 # ── 6. Vérifications ─────────────────────────────────────────
 echo ""
 echo "[6/6] Vérifications..."
-
 echo "   Attente du démarrage du pod Quarkus..."
 kubectl wait --namespace quarkus \
   --for=condition=ready pod \
@@ -79,15 +88,12 @@ kubectl wait --namespace quarkus \
 echo ""
 echo ">> Pods Quarkus :"
 kubectl get pods -n quarkus
-
 echo ""
 echo ">> Services :"
 kubectl get svc -n quarkus
-
 echo ""
 echo ">> Ingress :"
 kubectl get ingress -n quarkus
-
 echo ""
 echo ">> Logs :"
 kubectl -n quarkus logs deploy/quarkus-kafka-producer --tail=20
